@@ -1,5 +1,7 @@
 // Import the necessary modules
-use clap::{Parser, Subcommand};
+use clap::Parser;
+mod commands;
+use commands::Commands;
 
 // Application information
 #[derive(Parser)]
@@ -12,33 +14,6 @@ use clap::{Parser, Subcommand};
 struct Cli {
     #[command(subcommand)]
     command: Commands,
-}
-
-// Parser
-#[derive(Subcommand)]
-enum Commands {
-    Print {
-        #[arg(short, long)]
-        option: Option<String>,
-    },
-    Add {
-        #[arg(short = 'a', long)]
-        option1: Option<i32>,
-        #[arg(short = 'b', long)]
-        option2: Option<i32>,
-    },
-    Subtract {
-        #[arg(short = 'a', long)]
-        option1: Option<i32>,
-        #[arg(short = 'b', long)]
-        option2: Option<i32>,
-    },
-    Multiply {
-        #[arg(short = 'a', long)]
-        option1: Option<i32>,
-        #[arg(short = 'b', long)]
-        option2: Option<i32>,
-    }
 }
 
 fn main() {
@@ -83,6 +58,38 @@ fn main() {
                 println!("{} * {} = {}", number1, number2, number1 * number2);
             } else {
                 println!("Please provide two numbers to multiply");
+            }
+        }
+        // Divide command
+        Commands::Divide { option1, option2 } => {
+            if let (Some(number1), Some(number2)) = (option1, option2) {
+                if number2 != 0 {
+                    println!("{} / {} = {}", number1, number2, number1 / number2);
+                } else {
+                    println!("Error: Division by zero is not allowed");
+                }
+            } else {
+                println!("Please provide two numbers to divide");
+            }
+        }
+        // Modulus command
+        Commands::Modulus { option1, option2 } => {
+            if let (Some(number1), Some(number2)) = (option1, option2) {
+                if number2 != 0 {
+                    println!("{} % {} = {}", number1, number2, number1 % number2);
+                } else {
+                    println!("Error: Modulus by zero is not allowed");
+                }
+            } else {
+                println!("Please provide two numbers for modulus operation");
+            }
+        }
+        // Power command
+        Commands::Power { option1, option2 } => {
+            if let (Some(number1), Some(number2)) = (option1, option2) {
+                println!("{} ^ {} = {}", number1, number2, number1.pow(number2 as u32));
+            } else {
+                println!("Please provide two numbers for power operation");
             }
         }
     }
