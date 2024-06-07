@@ -1,4 +1,3 @@
-
 // Import the necessary modules
 use clap::{Parser, Subcommand};
 
@@ -29,6 +28,12 @@ enum Commands {
         option2: Option<i32>,
     },
     Subtract {
+        #[arg(short = 'a', long)]
+        option1: Option<i32>,
+        #[arg(short = 'b', long)]
+        option2: Option<i32>,
+    },
+    Multiply {
         #[arg(short = 'a', long)]
         option1: Option<i32>,
         #[arg(short = 'b', long)]
@@ -70,6 +75,14 @@ fn main() {
                 println!("{} - {} = {}", number1, number2, number1 - number2);
             } else {
                 println!("Please provide two numbers to subtract");
+            }
+        }
+        // Multiply command
+        Commands::Multiply { option1, option2 } => {
+            if let (Some(number1), Some(number2)) = (option1, option2) {
+                println!("{} * {} = {}", number1, number2, number1 * number2);
+            } else {
+                println!("Please provide two numbers to multiply");
             }
         }
     }
