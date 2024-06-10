@@ -1,6 +1,5 @@
-use clap::{Parser, Subcommand};
+use clap::Subcommand;
 
-// Parser
 #[derive(Subcommand)]
 pub enum Commands {
     Print {
@@ -42,5 +41,9 @@ pub enum Commands {
         option1: Option<i32>,
         #[arg(short = 'b', long)]
         option2: Option<i32>,
-    }
+    },
+    Drv {
+        #[arg(short, long)]
+        path: Option<String>,
+    },
 }
