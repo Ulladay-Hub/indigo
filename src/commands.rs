@@ -46,4 +46,8 @@ pub enum Commands {
         #[arg(short, long)]
         path: Option<String>,
     },
+    Help {
+        #[arg(short, long)]
+        command: Option<String>,
+    },
 }

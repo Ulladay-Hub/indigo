@@ -1,5 +1,5 @@
 // Import the necessary modules
-use clap::Parser;
+use clap::{Parser, Error};
 use std::fs;
 use std::env;
 use eframe::{egui, epi};
@@ -53,12 +53,14 @@ impl epi::App for MyApp {
 
 impl MyApp {
     fn process_command(&mut self) {
+        // Parse the input command and execute it
         let args = self.input.split_whitespace();
         let cli = Cli::try_parse_from(args).unwrap_or_else(|e| {
             self.output = format!("Error: {}\n", e);
-            Cli { command: Commands::Print { option: None } } // Default to a no-op command
+            Cli { command: Commands::Help } // Default to help command on error
         });
 
+        // Process the command and update the output accordingly
         self.output = match cli.command {
             Commands::Print { option } => {
                 if let Some(name) = option {
@@ -66,6 +68,28 @@ impl MyApp {
                 } else {
                     "Hello, world!".to_string()
                 }
+            }
+            Commands::Help => {
+                "Welcome to Indigo Terminal!\n\n\
+                Available commands:\n\
+                print: Print a message\n\
+                add: Add two numbers\n\
+                subtract: Subtract two numbers\n\
+                multiply: Multiply two numbers\n\
+                divide: Divide two numbers\n\
+                modulus: Calculate the modulus of two numbers\n\
+                power: Calculate the power of a number\n\
+                drv: Change directory and list its contents\n\
+                help: Display this help message\n\n\
+                Usage:\n\
+                print: indigo print -o [message]\n\
+                add: indigo add -a [number1] -b [number2]\n\
+                subtract: indigo subtract -a [number1] -b [number2]\n\
+                multiply: indigo multiply -a [number1] -b [number2]\n\
+                divide: indigo divide -a [number1] -b [number2]\n\
+                modulus: indigo modulus -a [number1] -b [number2]\n\
+                power: indigo power -a [number1] -b [number2]\n\
+                drv: indigo drv [directory_path]".to_string()
             }
             Commands::Add { option1, option2 } => {
                 if let (Some(number1), Some(number2)) = (option1, option2) {
