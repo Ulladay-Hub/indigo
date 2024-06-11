@@ -48,6 +48,6 @@ pub enum Commands {
     },
     Help {
         #[arg(short, long)]
-        command: Option<String>,
+        path: Option<String>,
     },
 }

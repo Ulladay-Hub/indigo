@@ -1,5 +1,5 @@
 // Import the necessary modules
-use clap::{Parser, Error};
+use clap::Parser;
 use std::fs;
 use std::env;
 use eframe::{egui, epi};
@@ -54,23 +54,17 @@ impl epi::App for MyApp {
 impl MyApp {
     fn process_command(&mut self) {
         // Parse the input command and execute it
-        let args = self.input.split_whitespace();
-        let cli = Cli::try_parse_from(args).unwrap_or_else(|e| {
-            self.output = format!("Error: {}\n", e);
-            Cli { command: Commands::Help } // Default to help command on error
-        });
-
-        // Process the command and update the output accordingly
-        self.output = match cli.command {
+        let args = self.input.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+        let cli = Cli::parse_from(args);
+        match cli.command {
             Commands::Print { option } => {
-                if let Some(name) = option {
-                    format!("Hello, {}!", name)
-                } else {
-                    "Hello, world!".to_string()
-                }
+                self.output = match option {
+                    Some(name) => format!("Hello, {}!", name),
+                    None => "Hello, world!".to_string(),
+                };
             }
-            Commands::Help => {
-                "Welcome to Indigo Terminal!\n\n\
+            Commands::Help { .. }=> {
+                self.output = format!("Welcome to Indigo Terminal!\n\n\
                 Available commands:\n\
                 print: Print a message\n\
                 add: Add two numbers\n\
@@ -89,79 +83,78 @@ impl MyApp {
                 divide: indigo divide -a [number1] -b [number2]\n\
                 modulus: indigo modulus -a [number1] -b [number2]\n\
                 power: indigo power -a [number1] -b [number2]\n\
-                drv: indigo drv [directory_path]".to_string()
+                drv: indigo drv [directory_path]");
             }
             Commands::Add { option1, option2 } => {
-                if let (Some(number1), Some(number2)) = (option1, option2) {
-                    format!("{} + {} = {}", number1, number2, number1 + number2)
-                } else {
-                    "Please provide two numbers to add".to_string()
-                }
+                self.output = match (option1, option2) {
+                    (Some(number1), Some(number2)) => format!("{} + {} = {}", number1, number2, number1 + number2),
+                    _ => "Please provide two numbers to add".to_string(),
+                };
             }
             Commands::Subtract { option1, option2 } => {
-                if let (Some(number1), Some(number2)) = (option1, option2) {
-                    format!("{} - {} = {}", number1, number2, number1 - number2)
-                } else {
-                    "Please provide two numbers to subtract".to_string()
-                }
+                self.output = match (option1, option2) {
+                    (Some(number1), Some(number2)) => format!("{} - {} = {}", number1, number2, number1 - number2),
+                    _ => "Please provide two numbers to subtract".to_string(),
+                };
             }
             Commands::Multiply { option1, option2 } => {
-                if let (Some(number1), Some(number2)) = (option1, option2) {
-                    format!("{} * {} = {}", number1, number2, number1 * number2)
-                } else {
-                    "Please provide two numbers to multiply".to_string()
-                }
+                self.output = match (option1, option2) {
+                    (Some(number1), Some(number2)) => format!("{} * {} = {}", number1, number2, number1 * number2),
+                    _ => "Please provide two numbers to multiply".to_string(),
+                };
             }
             Commands::Divide { option1, option2 } => {
-                if let (Some(number1), Some(number2)) = (option1, option2) {
-                    if number2 != 0 {
-                        format!("{} / {} = {}", number1, number2, number1 / number2)
-                    } else {
-                        "Error: Division by zero is not allowed".to_string()
-                    }
-                } else {
-                    "Please provide two numbers to divide".to_string()
-                }
-            }
-            Commands::Modulus { option1, option2 } => {
-                if let (Some(number1), Some(number2)) = (option1, option2) {
-                    if number2 != 0 {
-                        format!("{} % {} = {}", number1, number2, number1 % number2)
-                    } else {
-                        "Error: Modulus by zero is not allowed".to_string()
-                    }
-                } else {
-                    "Please provide two numbers for modulus operation".to_string()
-                }
-            }
-            Commands::Power { option1, option2 } => {
-                if let (Some(number1), Some(number2)) = (option1, option2) {
-                    format!("{} ^ {} = {}", number1, number2, number1.pow(number2 as u32))
-                } else {
-                    "Please provide two numbers for power operation".to_string()
-                }
-            }
-            Commands::Drv { path } => {
-                if let Some(dir_path) = path {
-                    if let Err(e) = env::set_current_dir(&dir_path) {
-                        format!("Error: Failed to change directory: {}", e)
-                    } else {
-                        match fs::read_dir(".") {
-                            Ok(entries) => {
-                                let mut contents = String::new();
-                                for entry in entries {
-                                    let entry = entry.unwrap();
-                                    let path = entry.path();
-                                    contents.push_str(&format!("{}\n", path.display()));
-                                }
-                                contents
-                            }
-                            Err(e) => format!("Error: Failed to read directory contents: {}", e),
+                self.output = match (option1, option2) {
+                    (Some(number1), Some(number2)) => {
+                        if number2 != 0 {
+                            format!("{} / {} = {}", number1, number2, number1 / number2)
+                        } else {
+                            "Error: Division by zero is not allowed".to_string()
                         }
                     }
-                } else {
-                    "Please provide a directory path".to_string()
-                }
+                    _ => "Please provide two numbers to divide".to_string(),
+                };
+            }
+            Commands::Modulus { option1, option2 } => {
+                self.output = match (option1, option2) {
+                    (Some(number1), Some(number2)) => {
+                        if number2 != 0 {
+                            format!("{} % {} = {}", number1, number2, number1 % number2)
+                        } else {
+                            "Error: Modulus by zero is not allowed".to_string()
+                        }
+                    }
+                    _ => "Please provide two numbers for modulus operation".to_string(),
+                };
+            }
+            Commands::Power { option1, option2 } => {
+                self.output = match (option1, option2) {
+                    (Some(number1), Some(number2)) => format!("{} ^ {} = {}", number1, number2, number1.pow(number2 as u32)),
+                    _ => "Please provide two numbers for power operation".to_string(),
+                };
+            }
+            Commands::Drv { path } => {
+                self.output = match path {
+                    Some(dir_path) => {
+                        if let Err(e) = env::set_current_dir(&dir_path) {
+                            format!("Error: Failed to change directory: {}", e)
+                        } else {
+                            match fs::read_dir(".") {
+                                Ok(entries) => {
+                                    let mut contents = String::new();
+                                    for entry in entries {
+                                        let entry = entry.unwrap();
+                                        let path = entry.path();
+                                        contents.push_str(&format!("{}\n", path.display()));
+                                    }
+                                    contents
+                                }
+                                Err(e) => format!("Error: Failed to read directory contents: {}", e),
+                            }
+                        }
+                    }
+                    None => "Please provide a directory path".to_string(),
+                };
             }
         };
     }
